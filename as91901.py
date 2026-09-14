@@ -8,8 +8,8 @@ class WhackAMole(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # Create constant
-        self.score_file = "scores.txt"
+        # Create constants
+        self.score_file = "whackamole/scores.txt"
 
         # Create variables
         self.score = 0
@@ -18,6 +18,8 @@ class WhackAMole(QMainWindow):
         # Create widgets
         self.lbl_score = QLabel(f"Score: {self.score}")
         self.lbl_timer = QLabel(f"Time remaining: {self.seconds}s")
+        self.lbl_progress = QLabel(f"Appended to score file")
+        self.lbl_progress.hide()
         self.led_timer = QLineEdit(self)
         self.led_timer.setPlaceholderText("Play Time: (s)")
 
@@ -47,6 +49,7 @@ class WhackAMole(QMainWindow):
         self.h_layout.addWidget(self.lbl_timer, alignment=Qt.AlignmentFlag.AlignRight)
         self.v_layout.addLayout(self.h_layout)
         self.v_layout.addLayout(self.mole_layout)
+        self.v_layout.addWidget(self.lbl_progress, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # Display everything
         self.main = QWidget()
@@ -104,8 +107,8 @@ class WhackAMole(QMainWindow):
 
     def timer_done(self):
         # Disable all buttons
-        for row in range(3):
-            for col in range(3):
+        for row in range(4):
+            for col in range(4):
                 self.mole_buttons[row][col].setEnabled(False)
                 self.mole_buttons[row][col].setStyleSheet(f'background-color: #202020; border-radius: 50%;')
                 self.mole_buttons[row][col].hide()
@@ -114,6 +117,17 @@ class WhackAMole(QMainWindow):
         self.v_layout.removeItem(self.mole_layout)
         self.h_layout.removeWidget(self.lbl_timer)
         self.lbl_score.setStyleSheet('font-size: 48px')
+
+        # Append score to file
+        print("Writing to file...")
+        try:
+            with open(self.score_file, "a") as f:
+                f.write(f"{self.score}\n")
+                print(f"{self.score} appended to {self.score_file}")
+                self.lbl_progress.show()
+        except IOError as e:
+            QMessageBox.critical(self, "File Error", f"Error writing score to {self.score_file}: {e}")
+
 
 app = QApplication(sys.argv)
 window = WhackAMole()
